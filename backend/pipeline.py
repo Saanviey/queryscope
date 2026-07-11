@@ -1,8 +1,6 @@
 from retrieve import retrieve_tables
 from expand import expand_with_fks
 
-
-
 def build_schema_context(question: str, model, conn, all_tables: list, k: int = 3) -> str:
     retrieved = retrieve_tables(question, model, conn, k=k)
     retrieved_names = [r[0] for r in retrieved]

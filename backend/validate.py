@@ -1,4 +1,3 @@
-
 from sqlglot import exp
 
 #check if tables parsed from AST actually exist in db
@@ -23,25 +22,41 @@ def build_alias_map(parsed) -> dict:
         alias_map[alias] = table.name
     return alias_map
 
-#validate columns using alias map resolution
+# validate columns using alias map resolution
 def validate_columns_exist(parsed, tables: list) -> list[str]:
     alias_map = build_alias_map(parsed)
     columns_by_table = {t.name: {c.name for c in t.columns} for t in tables}
-    query_tables = set(alias_map.values())  # set, not list — dedupes self-join case
+    query_tables = set(alias_map.values())
+
+    # collect column/expression aliases the query itself defines (e.g. COUNT(*) AS num_tickets)
+    # these are valid to reference later (ORDER BY, GROUP BY, HAVING) even though they're not real schema columns
+    select_aliases = {a.alias for a in parsed.find_all(exp.Alias) if a.alias}
 
     missing = []
+    seen = set()  # dedupes repeated flags for the same column (e.g. same ambiguous col in WHERE and JOIN)
+
     for col in parsed.find_all(exp.Column):
         if col.table:
-            #qualified column — resolve alias, check directly
             real_table = alias_map.get(col.table, col.table)
             if col.name not in columns_by_table.get(real_table, set()):
-                missing.append(f"{real_table}.{col.name}")
+                key = f"{real_table}.{col.name}"
+                if key not in seen:
+                    missing.append(key)
+                    seen.add(key)
         else:
-            #unqualified — check which of the query's tables actually have this column
+            if col.name in select_aliases:
+                continue  # reference to a query-defined alias, not a hallucination — skip entirely
+
             matches = [t for t in query_tables if col.name in columns_by_table.get(t, set())]
             if len(matches) == 0:
-                missing.append(f"{col.name} (not found in any queried table)")
+                key = f"{col.name} (not found in any queried table)"
+                if key not in seen:
+                    missing.append(key)
+                    seen.add(key)
             elif len(matches) > 1:
-                missing.append(f"{col.name} (ambiguous — exists in {matches})")
+                key = f"{col.name} (ambiguous — exists in {sorted(matches)})"
+                if key not in seen:
+                    missing.append(key)
+                    seen.add(key)
 
     return missing
