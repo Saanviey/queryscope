@@ -1,7 +1,7 @@
 import os
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from pydantic import BaseModel
-from dotenv import load_dotenv
 
 load_dotenv()
 from ingest import ingest_schema
@@ -12,7 +12,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -22,8 +21,8 @@ app.add_middleware(
 
 
 # loaded once at startup, reused across every request
-DATABASE_URL = "postgresql://manoj@localhost/chinook"
-READONLY_URL = "postgresql://queryscope_readonly:changeme@localhost/chinook"
+DATABASE_URL = os.environ.get("DATABASE_URL")
+READONLY_URL = os.environ.get("READONLY_DATABASE_URL")
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 tables = ingest_schema(DATABASE_URL)

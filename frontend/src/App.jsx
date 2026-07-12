@@ -72,7 +72,7 @@ function App() {
     const data = await response.json();
 
     if (data.type === 'data_question') {
-      setMessages((prev) => [...prev, { role: 'assistant', text: `Ran SQL: ${data.sql}` }]);
+      setMessages((prev) => [...prev, { role: 'assistant', text: `Ran SQL (${data.attempts} attempt${data.attempts > 1 ? 's' : ''}): ${data.sql}` }]);
       setResults(data.results);
       setView('results');
     } else {
