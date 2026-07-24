@@ -8,6 +8,12 @@ Most "chat with your database" tools either:
 
 QueryScope treats schema retrieval and SQL validation as first-class pipeline stages, not afterthoughts. The core bet: an LLM given a correct, minimal, relevant slice of schema — and a validator that catches anything it still gets wrong — produces trustworthy SQL far more reliably than one given everything or nothing.
 
+## example
+
+![schema](images/schema.png)
+![demo](images/demo.png)
+
+
 ## Pipeline overview
 ```
 question
@@ -52,11 +58,6 @@ Split-screen interface:
 - **Right pane** — toggle between:
   - **Results view** — the executed query's returned rows.
   - **Schema view** — an interactive, force-directed diagram of the full database schema (built with React Flow), showing every table, its columns with types, PK/FK badges, and the foreign key relationships connecting them.
-
-## example
-
-![schema](images/schema.png)
-![demo](images/demo.png)
 
 
 ## Setup
