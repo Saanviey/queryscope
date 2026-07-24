@@ -53,7 +53,7 @@ Split-screen interface:
   - **Results view** — the executed query's returned rows.
   - **Schema view** — an interactive, force-directed diagram of the full database schema (built with React Flow), showing every table, its columns with types, PK/FK badges, and the foreign key relationships connecting them.
 
-## eaxmple
+## example
 
 ![schema](images/schema.png)
 ![demo](images/demo.png)
